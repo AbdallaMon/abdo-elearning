@@ -1,0 +1,244 @@
+datasource db {
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+
+
+enum QuestionType {
+  TEXT
+  MULTIPLE_CHOICE
+}
+
+enum MediaType {
+  VIDEO
+  AUDIO
+  TEXT
+  IMAGE
+}
+
+model User {
+  id                 Int      @id @default(autoincrement())
+  firstName          String
+  lastName           String
+  email              String   @unique
+  password           String
+  role               Role     @default(STUDENT)
+  isBlocked          Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  deletedAt          DateTime?
+  profilePictureUrl  String?
+  lastLogin          DateTime?
+  lastUpdatedBy      Int?
+  courseCompletionDate DateTime?
+  certificates       Certificate[]
+  purchases          LessonPurchase[]
+  quizAttempts       QuizAttempt[]
+  // auth
+  resetPasswordToken  String?  @unique
+  resetPasswordExpires DateTime?
+  confirmationToken String?  @unique
+  confirmationExpires DateTime?
+  emailConfirmed     Boolean  @default(false)
+  // Relation Fields
+  favorites          Favorite[]
+  pinedLessons       PinnedLesson[]
+  completedCourses   CompletedCourse[]
+  studentCourses     StudentCourse[]
+
+  // Add indexes to improve query performance
+  @@index([email])
+}
+
+model Category {
+  id      Int      @id @default(autoincrement())
+  name    String   @unique
+  courses Course[]
+
+  // Add indexes to improve query performance
+  @@index([name])
+}
+
+model Course {
+  id              Int      @id @default(autoincrement())
+  title           String   @unique
+  description     String
+  category        Category @relation(fields: [categoryId], references: [id])
+  categoryId      Int
+  lessons         Lesson[]
+  quizzes         Quiz[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+  certificates    Certificate[]
+  published       Boolean  @default(false)
+  image           String?
+  // Relation Fields
+  students        StudentCourse[]
+  completedBy     CompletedCourse[]
+  favoritedBy     Favorite[]
+  // Add indexes to improve query performance
+  @@index([title])
+}
+
+model Lesson {
+  id              Int      @id @default(autoincrement())
+  title           String   @unique
+  description     String
+  course          Course   @relation(fields: [courseId], references: [id])
+  courseId        Int
+  media           Media[]
+  image           String?
+  quizzes         Quiz[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+  purchases       LessonPurchase[]
+  published       Boolean  @default(false)
+  order           Int
+
+  // Relation Fields
+  pinnedBy        PinnedLesson[]
+  certificates    Certificate[]
+
+  // Add indexes to improve query performance
+  @@index([title])
+}
+
+model Media {
+  id              Int      @id @default(autoincrement())
+  title           String?
+  description     String?
+  link            String
+  type            MediaType
+  isFree          Boolean
+  expectedDuration Int?
+  order           Int
+  lesson          Lesson   @relation(fields: [lessonId], references: [id])
+  lessonId        Int
+}
+
+model Certificate {
+  id              Int      @id @default(autoincrement())
+  title           String
+  description     String
+  link            String
+  user            User     @relation(fields: [userId], references: [id])
+  userId          Int
+  course          Course?  @relation(fields: [courseId], references: [id])
+  courseId        Int?
+  lesson          Lesson?  @relation(fields: [lessonId], references: [id])
+  lessonId        Int?
+  createdAt       DateTime @default(now())
+}
+
+model Quiz {
+  id              Int      @id @default(autoincrement())
+  title           String
+  description     String
+  lesson          Lesson?  @relation(fields: [lessonId], references: [id])
+  lessonId        Int?
+  course          Course?  @relation(fields: [courseId], references: [id])
+  courseId        Int?
+  questions       Question[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  timeLimit       Int?     // Optional time limit for the quiz in minutes
+  passingScore    Int?
+  attempts        QuizAttempt[]
+}
+
+model Question {
+  id              Int      @id @default(autoincrement())
+  title           String
+  questionType    QuestionType
+  questionText    String?
+  questionChoices Choice[]
+  quiz            Quiz     @relation(fields: [quizId], references: [id])
+  quizId          Int
+  order           Int
+  createdAt       DateTime @default(now())
+}
+
+model Choice {
+  id              Int      @id @default(autoincrement())
+  title           String
+  question        Question @relation(fields: [questionId], references: [id])
+  questionId      Int
+}
+
+model QuizAttempt {
+  id              Int      @id @default(autoincrement())
+  user            User     @relation(fields: [userId], references: [id])
+  userId          Int
+  quiz            Quiz     @relation(fields: [quizId], references: [id])
+  quizId          Int
+  answers         Json
+  score           Int?
+  completed       Boolean  @default(false)
+  stoppedOn       Int?
+  isApproved      Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  attemptCount    Int      @default(0) // Number of times the user attempted the quiz
+  duration        Int?     // Total duration taken by the user to complete the quiz in minutes
+}
+
+model LessonPurchase {
+  id              Int      @id @default(autoincrement())
+  user            User     @relation(fields: [userId], references: [id])
+  userId          Int
+  lesson          Lesson   @relation(fields: [lessonId], references: [id])
+  lessonId        Int
+  purchasedAt     DateTime @default(now())
+}
+
+model Favorite {
+  userId  Int
+  courseId Int
+  user    User   @relation(fields: [userId], references: [id])
+  course  Course @relation(fields: [courseId], references: [id])
+  @@id([userId, courseId])
+}
+
+model PinnedLesson {
+  userId  Int
+  lessonId Int
+  user    User   @relation(fields: [userId], references: [id])
+  lesson  Lesson @relation(fields: [lessonId], references: [id])
+  @@id([userId, lessonId])
+}
+
+model CompletedCourse {
+  userId  Int
+  courseId Int
+  user    User   @relation(fields: [userId], references: [id])
+  course  Course @relation(fields: [courseId], references: [id])
+  @@id([userId, courseId])
+}
+
+model StudentCourse {
+  userId  Int
+  courseId Int
+  user    User   @relation(fields: [userId], references: [id])
+  course  Course @relation(fields: [courseId], references: [id])
+    status  PurchaseStatus @default(PENDING)  // Add status field
+
+  @@id([userId, courseId])
+}
+
+enum PurchaseStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
