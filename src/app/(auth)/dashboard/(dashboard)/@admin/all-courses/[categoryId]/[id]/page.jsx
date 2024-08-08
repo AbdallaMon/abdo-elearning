@@ -57,11 +57,43 @@ const LessonsPage = ({ params }) => {
 
 
     const inputs = [
-        { data: { id: 'title', type: 'text', label: 'عنوان الدرس' } },
-        { data: { id: 'description', type: 'text', label: 'الوصف' } },
-        { data: { id: 'order', type: 'number', label: 'الترتيب' } },
-        { data: { id: 'image', type: 'text', label:"لينك الصوره" } },
-        { data: { id: 'published', type: 'switch', label: 'نشره؟' } },
+        { data: { id: 'title', type: 'text', label: 'عنوان الدرس' } , pattern: {
+                required: {
+                    value: true,
+                    message: "Required field",
+                }
+            }
+            },
+        { data: { id: 'description', type: 'text', label: 'الوصف' }, pattern: {
+                required: {
+                    value: true,
+                    message: "Required field",
+                }
+            } },
+        { data: { id: 'order', type: 'number', label: 'الترتيب' } , pattern: {
+                required: {
+                    value: true,
+                    message: "Required field",
+                }
+            }},
+        {data:{id:"quiz",type: "text",label:"لينك الواجب"}, pattern: {
+                required: {
+                    value: true,
+                    message: "Required field",
+                }
+            }},
+        { data: { id: 'image', type: 'text', label:"لينك الصوره" }, pattern: {
+                required: {
+                    value: true,
+                    message: "Required field",
+                }
+            } },
+        { data: { id: 'published', type: 'switch', label: 'نشره؟' }, pattern: {
+                required: {
+                    value: true,
+                    message: "Required field",
+                }
+            } },
     ];
 
 

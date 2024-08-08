@@ -5,7 +5,7 @@ import {simpleModalStyle} from "@/app/constants";
 import {handleRequestSubmit} from "@/helpers/functions/handleSubmit";
 import {useToastContext} from "@/providers/ToastLoadingProvider";
 
-const EditModal = ({open, handleClose, item, inputs, setData, href, checkChanges = false}) => {
+const EditModal = ({open, handleClose, item, inputs, setData, href, checkChanges = true}) => {
     const {setLoading} = useToastContext()
 
 
@@ -14,12 +14,12 @@ const EditModal = ({open, handleClose, item, inputs, setData, href, checkChanges
         if (checkChanges) {
             dataToSubmit = {};
             for (let key in formData) {
-                if (formData[key] !== item[key]) {
+                if (formData[key] != item[key]) {
                     dataToSubmit[key] = formData[key];
                 }
             }
         }
-            const result = await handleRequestSubmit(changes, setLoading, `${href}/${item.id}`, false, "Updating...", null, "PUT");
+            const result = await handleRequestSubmit(dataToSubmit, setLoading, `${href}/${item.id}`, false, "Updating...", null, "PUT");
             if (result.status === 200) {
                 setData((prevData) => prevData.map((dataItem) => dataItem.id === result.data.id ? result.data : dataItem));
                 handleClose();

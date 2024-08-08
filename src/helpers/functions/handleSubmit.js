@@ -1,14 +1,13 @@
 import { toast } from "react-toastify";
 import { Failed, Success } from "@/app/UiComponents/ToastUpdate/ToastUpdate";
-import { apiUrl } from "@/Urls/urls";
 
 export async function handleRequestSubmit(
-  data,
-  setLoading,
-  path,
-  isFileUpload = false,
-  toastMessage = "Sending...",
-  setRedirect,
+      data,
+      setLoading,
+      path,
+      isFileUpload = false,
+      toastMessage = "Sending...",
+      setRedirect,method="POST"
 ) {
   const toastId = toast.loading(toastMessage);
   const body = isFileUpload ? data : JSON.stringify(data);
@@ -16,8 +15,8 @@ export async function handleRequestSubmit(
   setLoading(true);
   const id = toastId;
   try {
-    const request = await fetch(apiUrl + path, {
-      method: "POST",
+    const request = await fetch("/api/" + path, {
+      method: method,
       body,
       headers: headers,
     });

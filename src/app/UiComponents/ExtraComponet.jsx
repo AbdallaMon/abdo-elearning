@@ -84,7 +84,7 @@ export default function MediaDrawer({ lessonId, courseId, handleCloseDrawer }) {
                                   setData={setMediaItems}
                                   label="Add Media"
                                   inputs={multimediaInputs}
-                                  href={`/api/admin/courses/${courseId}/lessons/${lessonId}/media`}
+                                  href={`/admin/courses/${courseId}/lessons/${lessonId}/media`}
                                   extraProps={{ formTitle: 'Add Media', btnText: 'Create', extraId: lessonId }}
                             />
                       {
@@ -95,7 +95,7 @@ export default function MediaDrawer({ lessonId, courseId, handleCloseDrawer }) {
                                         item={selectedItem}
                                         inputs={multimediaInputs}
                                         setData={setMediaItems}
-                                        href={`/api/admin/courses/${courseId}/lessons/${lessonId}/media`}
+                                        href={`/admin/courses/${courseId}/lessons/${lessonId}/media`}
                                   />
                             )
                       }

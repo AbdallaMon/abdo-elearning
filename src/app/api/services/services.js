@@ -211,7 +211,10 @@ export async function fetchAllMediaByLessonId(lessonId){
         const media = await prisma.media.findMany({
            where:{
                lessonId
-           }
+           },
+            orderBy: {
+                order: 'desc'
+            }
         });
         return {
             data: media,
@@ -219,6 +222,28 @@ export async function fetchAllMediaByLessonId(lessonId){
         }
     } catch (error) {
         console.error("Error fetching media for lesson:", error);
+        throw error;
+    }
+}
+export async function updateMedia(mediaId,data){
+    if(data.order){
+        data.order=+data.order
+    }
+    if(data.expectedDuration){
+        data.expectedDuration=+data.expectedDuration
+    }
+    try {
+        const media=await prisma.media.update({
+            where:{
+                id:+mediaId
+            },data
+        })
+        return {
+            data: media,
+            status:200
+        }
+    } catch (error) {
+        console.error("Error updating media :", error);
         throw error;
     }
 }
