@@ -99,9 +99,6 @@ export async function fetchLessonsByCourseId( courseId, page = 0, limit = 10) {
         where,
         skip: (page-1) * limit,
         take: limit,
-        include: {
-            media: true,
-        },
     });
     const total = await prisma.lesson.count({ where });
 
@@ -206,6 +203,22 @@ export async function createMediaForLesson(lessonId, mediaData) {
         }
     } catch (error) {
         console.error("Error creating media for lesson:", error);
+        throw error;
+    }
+}
+export async function fetchAllMediaByLessonId(lessonId){
+    try {
+        const media = await prisma.media.findMany({
+           where:{
+               lessonId
+           }
+        });
+        return {
+            data: media,
+            status:200
+        }
+    } catch (error) {
+        console.error("Error fetching media for lesson:", error);
         throw error;
     }
 }

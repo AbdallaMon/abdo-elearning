@@ -3,7 +3,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { useForm } from "react-hook-form";
 import { Box, Button, Typography } from "@mui/material";
 import TextAreaField from "@/app/UiComponents/FormComponents/MUIInputs/TextAreaField";
-import { MuiSelect } from "@/app/UiComponents/FormComponents/MUIInputs/MuiSelect";
+import MuiSelect  from "@/app/UiComponents/FormComponents/MUIInputs/MuiSelect";
 import { MuiDatePicker } from "@/app/UiComponents/FormComponents/MUIInputs/MuiDatePicker";
 import MuiSwitchField from "@/app/UiComponents/FormComponents/MUIInputs/MuiSwitchField";
 import { useRef } from "react";

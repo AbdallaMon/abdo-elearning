@@ -2,7 +2,7 @@
 import React from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { Box, CircularProgress } from '@mui/material';
-import { colors, paginationOptions } from '@/constants/constants';
+import { colors, paginationOptions } from '@/app/constants';
 
 const MainTable = ({ columns, rows, page, totalPages, limit, setPage, setLimit, loading }) => {
     const handlePageChange = (params) => {

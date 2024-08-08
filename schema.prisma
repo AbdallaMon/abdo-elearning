@@ -24,6 +24,7 @@ enum MediaType {
   AUDIO
   TEXT
   IMAGE
+  PDF
 }
 
 model User {
@@ -44,6 +45,7 @@ model User {
   certificates       Certificate[]
   purchases          LessonPurchase[]
   quizAttempts       QuizAttempt[]
+  lessonsQuizAttempts LessonQuizAttempt[]
   // auth
   resetPasswordToken  String?  @unique
   resetPasswordExpires DateTime?
@@ -55,7 +57,7 @@ model User {
   pinedLessons       PinnedLesson[]
   completedCourses   CompletedCourse[]
   studentCourses     StudentCourse[]
-
+  answers            Answer[]
   // Add indexes to improve query performance
   @@index([email])
 }
@@ -99,7 +101,7 @@ model Lesson {
   courseId        Int
   media           Media[]
   image           String?
-  quizzes         Quiz[]
+  quiz              String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   deletedAt       DateTime?
@@ -110,9 +112,22 @@ model Lesson {
   // Relation Fields
   pinnedBy        PinnedLesson[]
   certificates    Certificate[]
-
+  quizAttempts LessonQuizAttempt[]
   // Add indexes to improve query performance
   @@index([title])
+}
+
+model LessonQuizAttempt {
+  id              Int      @id @default(autoincrement())
+  user            User     @relation(fields: [userId], references: [id])
+  userId          Int
+  lesson          Lesson   @relation(fields: [lessonId], references: [id])
+  lessonId        Int
+  pdfAnswer       String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([userId, lessonId])
 }
 
 model Media {
@@ -146,8 +161,6 @@ model Quiz {
   id              Int      @id @default(autoincrement())
   title           String
   description     String
-  lesson          Lesson?  @relation(fields: [lessonId], references: [id])
-  lessonId        Int?
   course          Course?  @relation(fields: [courseId], references: [id])
   courseId        Int?
   questions       Question[]
@@ -166,7 +179,8 @@ model Question {
   questionChoices Choice[]
   quiz            Quiz     @relation(fields: [quizId], references: [id])
   quizId          Int
-  order           Int
+  order           Int?
+  answers         Answer[]
   createdAt       DateTime @default(now())
 }
 
@@ -183,7 +197,7 @@ model QuizAttempt {
   userId          Int
   quiz            Quiz     @relation(fields: [quizId], references: [id])
   quizId          Int
-  answers         Json
+  answers         Answer[] // Change from Json to an array of Answer model
   score           Int?
   completed       Boolean  @default(false)
   stoppedOn       Int?
@@ -193,7 +207,19 @@ model QuizAttempt {
   attemptCount    Int      @default(0) // Number of times the user attempted the quiz
   duration        Int?     // Total duration taken by the user to complete the quiz in minutes
 }
-
+model Answer {
+  id             Int        @id @default(autoincrement())
+  user           User       @relation(fields: [userId], references: [id])
+  userId         Int
+  question       Question   @relation(fields: [questionId], references: [id])
+  questionId     Int
+  quizAttempt    QuizAttempt @relation(fields: [quizAttemptId], references: [id])
+  quizAttemptId  Int
+  answer         String     // This can store the student's answer, regardless of type
+  isCorrect        Boolean?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+}
 model LessonPurchase {
   id              Int      @id @default(autoincrement())
   user            User     @relation(fields: [userId], references: [id])

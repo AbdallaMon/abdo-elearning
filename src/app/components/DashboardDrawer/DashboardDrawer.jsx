@@ -17,7 +17,7 @@ import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { GiHamburgerMenu } from "react-icons/gi";
 import IconButton from "@mui/material/IconButton";
-import {colors} from "@/constants/constants";
+import {colors} from "@/app/constants";
 
 export default function DashboardDrawer({ listData }) {
   const [open, setOpen] = useState(false);

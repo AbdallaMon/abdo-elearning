@@ -6,6 +6,10 @@ import FilterSelect from "@/app/UiComponents/FilterSelect";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ExtraComponent from "@/app/UiComponents/ExtraComponet";
+import AdminTable from "@/app/components/CardGrid";
+import Link from "next/link";
+import {Button} from "@mui/material";
+import MediaDrawer from "@/app/UiComponents/ExtraComponet";
 
 const LessonsPage = ({ params }) => {
     const { id: courseId, categoryId } = params;
@@ -20,14 +24,22 @@ const LessonsPage = ({ params }) => {
         limit,
         setLimit,
         total,
-        setFilters,
-        filters,
-        setRender
+
     } = useDataFetcher(`admin/courses/${courseId}/lessons`, false);
 
     const [courses, setCourses] = useState([]);
     const [loadingCourses, setLoadingCourses] = useState(true);
+    const [lessonId, setSelectedLesson] = useState(null);
+    const [drawerOpen, setDrawerOpen] = useState(false);
+    const handleRowClick = (userId) => {
+        setSelectedLesson(userId);
+        setDrawerOpen(true);
+    };
 
+    const handleCloseDrawer = () => {
+        setDrawerOpen(false);
+        setSelectedLesson(null);
+    };
     const fetchAllCoursesByCatId = async () => {
         const response = await fetch(`/api/indexes?index=course&filters={"categoryId":${categoryId}}`);
         const result = await response.json();
@@ -52,20 +64,8 @@ const LessonsPage = ({ params }) => {
         { data: { id: 'published', type: 'switch', label: 'نشره؟' } },
     ];
 
-    const multimediaInputs = [
-        { data: { id: 'title', type: 'text', label: 'عنوان الوسائط' } },
-        { data: { id: 'description', type: 'text', label: 'الوصف' } },
-        { data: { id: 'link', type: 'text', label: 'الرابط' } },
-        { data: { id: 'type', type: 'SelectField', label: 'النوع', options: [{ value: 'صورة', id: 'IMAGE' }, { value: 'فيديو', id: 'VIDEO' }] }
 
-
-        },
-        { data: { id: 'isFree', type: 'switch', label: 'مجاني؟' } },
-        { data: { id: 'expectedDuration', type: 'number', label: 'المدة المتوقعة' } },
-        { data: { id: 'order', type: 'number', label: 'الترتيب' } },
-    ];
-
-    const properties = [
+    const columns = [
         { name: 'title', label: 'عنوان الدرس' },
         { name: 'description', label: 'الوصف' },
         { name: 'order', label: 'الترتيب' },
@@ -99,10 +99,10 @@ const LessonsPage = ({ params }) => {
                     extraProps={{ formTitle: 'درس جديد', btnText: 'انشاء' }}
                     multimedia={true}
               />
-              <CardGrid
+              <AdminTable
                     withEdit={true}
                     data={data}
-                    properties={properties}
+                    columns={columns}
                     page={page}
                     setPage={setPage}
                     limit={limit}
@@ -112,13 +112,19 @@ const LessonsPage = ({ params }) => {
                     setData={setData}
                     loading={loading}
                     editHref={`/api/admin/courses/${courseId}/lessons`}
-                    extraComponent={ExtraComponent}
-                    extraComponentProps={{
-                        inputs: multimediaInputs,
-                        href: `/api/admin/courses/${courseId}/media`,
-                        setData
-                    }}
-              />
+                    extraComponent={({ item }) => (
+                              <Button onClick={() => handleRowClick(item.id)} >
+                                  Media
+                              </Button>
+                    )}
+                   />
+                    {drawerOpen && (
+                           <MediaDrawer
+                            lessonId={lessonId}
+                             courseId={courseId}
+                              handleCloseDrawer={handleCloseDrawer}
+                  />)
+                    }
           </>
     );
 };
