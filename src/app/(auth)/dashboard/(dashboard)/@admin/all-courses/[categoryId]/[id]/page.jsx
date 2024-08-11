@@ -1,13 +1,10 @@
 "use client";
 import useDataFetcher from "@/helpers/hooks/useDataFetcher";
-import CardGrid from "@/app/components/CardGrid";
 import CreateModal from "@/app/UiComponents/Models/CreateModal";
 import FilterSelect from "@/app/UiComponents/FilterSelect";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import ExtraComponent from "@/app/UiComponents/ExtraComponet";
 import AdminTable from "@/app/components/CardGrid";
-import Link from "next/link";
 import {Button} from "@mui/material";
 import MediaDrawer from "@/app/UiComponents/ExtraComponet";
 
@@ -96,8 +93,8 @@ const LessonsPage = ({ params }) => {
             } },
     ];
 
-
     const columns = [
+        {name:"image",label: "صورة الدرس",type:"image"},
         { name: 'title', label: 'عنوان الدرس' },
         { name: 'description', label: 'الوصف' },
         { name: 'order', label: 'الترتيب' },

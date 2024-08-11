@@ -34,7 +34,7 @@ const FilterSelect = ({ label, options, value, onChange, loadingCategories }) =>
                   <MenuItem value="" sx={{
                         direction:"ltr"
                   }}>جميع</MenuItem>
-                  {options.map((option) => (
+                  {options?.map((option) => (
                         <MenuItem key={option.id} value={option.id} sx={{
                             direction:"ltr"
                         }}>

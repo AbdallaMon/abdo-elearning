@@ -27,7 +27,9 @@ export default function DeleteModal({
             setData((prevData) =>
                   prevData.filter((dataItem) => dataItem.id !== item.id)
             );
+            if(setTotal){
             setTotal((prev) => prev - 1);
+            }
             handleClose();
         }
     };

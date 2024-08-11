@@ -1,4 +1,3 @@
-import prisma from "@/lib/pirsma/prisma";
 import {editCourse} from "@/app/api/services/services";
 
 export async function PUT(request, response) {

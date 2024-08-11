@@ -37,7 +37,10 @@ const CreateModal = ({
         handleSubmit(result.data);
       } else {
         setData((prevData) => [...prevData, result.data]);
+        if(setTotal){
+
         setTotal((prev) => prev + 1)
+        }
         handleClose();
       }
     }

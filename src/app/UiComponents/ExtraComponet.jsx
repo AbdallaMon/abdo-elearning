@@ -2,20 +2,57 @@ import React, { useState, useEffect } from 'react';
 import CreateModal from "@/app/UiComponents/Models/CreateModal";
 import EditModal from "@/app/UiComponents/Models/EditModal";
 import { Button, Typography, Box, Divider, SwipeableDrawer, CircularProgress } from "@mui/material";
+import DeleteModal from "@/app/UiComponents/Models/DeleteModal";
 
 export default function MediaDrawer({ lessonId, courseId, handleCloseDrawer }) {
     const [mediaItems, setMediaItems] = useState([]);
     const [selectedItem, setSelectedItem] = useState(null);
     const [loading, setLoading] = useState(true);
-
+    const [deleteOpen, setDeleteOpen] = useState(false);
+const [editOpen,setEditOpen]=useState(false)
     const multimediaInputs = [
-        { data: { id: 'title', type: 'text', label: 'عنوان الوسائط' } },
-        { data: { id: 'description', type: 'text', label: 'الوصف' } },
-        { data: { id: 'link', type: 'text', label: 'الرابط' } },
-        { data: { id: 'type', type: 'select', label: 'النوع', options: [{ name: 'صورة', id: 'IMAGE' }, { name: 'فيديو', id: 'VIDEO' },{ name: 'بي دي اف', id: 'PDF' }] } },
-        { data: { id: 'isFree', type: 'switch', label: 'مجاني؟' } },
-        { data: { id: 'expectedDuration', type: 'number', label: 'المدة المتوقعة' } },
-        { data: { id: 'order', type: 'number', label: 'الترتيب' } },
+        { data: { id: 'title', type: 'text', label: 'عنوان الوسائط' }, pattern: {
+                required: {
+                    value: true,
+                    message: "Required field",
+                }
+            }} ,
+        { data: { id: 'description', type: 'text', label: 'الوصف' } , pattern: {
+                required: {
+                    value: true,
+                    message: "Required field",
+                }
+            }},
+        { data: { id: 'link', type: 'text', label: 'الرابط' }, pattern: {
+                required: {
+                    value: true,
+                    message: "Required field",
+                }
+            } },
+        { data: { id: 'type', type: 'select', label: 'النوع', options: [{ name: 'صورة', id: 'IMAGE' }, { name: 'فيديو', id: 'VIDEO' },{ name: 'بي دي اف', id: 'PDF' }] } , pattern: {
+                required: {
+                    value: true,
+                    message: "Required field",
+                }
+            }},
+        { data: { id: 'isFree', type: 'switch', label: 'مجاني؟' } , pattern: {
+                required: {
+                    value: true,
+                    message: "Required field",
+                }
+            }},
+        { data: { id: 'expectedDuration', type: 'number', label: 'المدة المتوقعة' }, pattern: {
+                required: {
+                    value: true,
+                    message: "Required field",
+                }
+            } },
+        { data: { id: 'order', type: 'number', label: 'الترتيب' } , pattern: {
+                required: {
+                    value: true,
+                    message: "Required field",
+                }
+            }},
     ];
 
     useEffect(() => {
@@ -36,14 +73,22 @@ export default function MediaDrawer({ lessonId, courseId, handleCloseDrawer }) {
 
     const handleOpen = (item) => {
         setSelectedItem(item);
+        setEditOpen(true)
     };
 
     const handleClose = () => {
         setSelectedItem(null);
+        setEditOpen(false)
     };
 
-    const handleAddNewMedia = () => {
-        setSelectedItem({ new: true });
+    const handleDeleteOpen = (item) => {
+        setSelectedItem(item);
+        setDeleteOpen(true);
+    };
+
+    const handleDeleteClose = () => {
+        setDeleteOpen(false);
+        setSelectedItem(null);
     };
 
 
@@ -64,6 +109,13 @@ export default function MediaDrawer({ lessonId, courseId, handleCloseDrawer }) {
                             </Box>
                       ) : (
                             <>
+                                <CreateModal
+                                      setData={setMediaItems}
+                                      label="Add Media"
+                                      inputs={multimediaInputs}
+                                      href={`/admin/courses/${courseId}/lessons/${lessonId}/media`}
+                                      extraProps={{ formTitle: 'Add Media', btnText: 'Create', extraId: lessonId }}
+                                />
                                 {mediaItems?.map((mediaItem) => (
                                       <Box key={mediaItem.id} sx={{ mb: 2 }}>
                                           <Typography variant="h6">{mediaItem.title}</Typography>
@@ -73,24 +125,33 @@ export default function MediaDrawer({ lessonId, courseId, handleCloseDrawer }) {
                                                 onClick={() => handleOpen(mediaItem)}
                                                 sx={{ mt: 1 }}
                                           >
-                                              <Typography variant="body2">ID: {mediaItem.id}</Typography>
+                                              <Typography variant="body2"> {mediaItem.title}</Typography>
                                               تعديل
+                                          </Button>
+                                          <Button
+                                                variant="contained"
+                                                color="secondary"
+                                                onClick={() => handleDeleteOpen(mediaItem)}
+                                                sx={{ mt:1,mx:1 }}
+                                          >
+                                              <Typography variant="body2"> {mediaItem.title}</Typography>
+                                              حذف
                                           </Button>
                                           <Divider sx={{ my: 2 }} />
                                       </Box>
                                 ))}
-                            <CreateModal
-                                  key="create--1"
-                                  setData={setMediaItems}
-                                  label="Add Media"
-                                  inputs={multimediaInputs}
-                                  href={`/admin/courses/${courseId}/lessons/${lessonId}/media`}
-                                  extraProps={{ formTitle: 'Add Media', btnText: 'Create', extraId: lessonId }}
-                            />
+
+                                <DeleteModal
+                                      open={deleteOpen}
+                                      handleClose={handleDeleteClose}
+                                      item={selectedItem}
+                                      setData={setMediaItems}
+                                      href={`/admin/courses/${courseId}/lessons/${lessonId}/media`}
+                                />
                       {
                             selectedItem && (
                                   <EditModal
-                                        open={true}
+                                        open={editOpen}
                                         handleClose={handleClose}
                                         item={selectedItem}
                                         inputs={multimediaInputs}

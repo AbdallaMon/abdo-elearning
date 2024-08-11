@@ -17,6 +17,8 @@ enum Role {
 enum QuestionType {
   TEXT
   MULTIPLE_CHOICE
+  SECTION
+  TRUE_FALSE
 }
 
 enum MediaType {
@@ -66,7 +68,7 @@ model Category {
   id      Int      @id @default(autoincrement())
   name    String   @unique
   courses Course[]
-
+  quizzes         Quiz[]
   // Add indexes to improve query performance
   @@index([name])
 }
@@ -163,6 +165,8 @@ model Quiz {
   description     String
   course          Course?  @relation(fields: [courseId], references: [id])
   courseId        Int?
+  category        Category? @relation(fields: [categoryId], references: [id])
+  categoryId      Int?
   questions       Question[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -174,21 +178,53 @@ model Quiz {
 model Question {
   id              Int      @id @default(autoincrement())
   title           String
+  description           String?
   questionType    QuestionType
   questionText    String?
-  questionChoices Choice[]
+  questionTextBestAnswer String?
+  questionChoices Choice[] // If it's a standalone question, these are the choices
+  correctAnswerBoolean    Boolean? // Used for TRUE_FALSE questions
   quiz            Quiz     @relation(fields: [quizId], references: [id])
   quizId          Int
   order           Int?
   answers         Answer[]
+  sectionQuestions SectionQuestion[] // The questions inside a section (if applicable)
   createdAt       DateTime @default(now())
 }
 
+model SectionQuestion {
+  id              Int      @id @default(autoincrement())
+  title           String   // Title of the question inside the section
+  questionChoices Choice[] // Multiple choice options
+  parentQuestion  Question  @relation(fields: [parentQuestionId], references: [id])
+  parentQuestionId Int  // Relation to the parent question (which is a section)
+  order           Int?
+  createdAt       DateTime @default(now())
+  answers         Answer[] // To store user's answers for section questions
+}
 model Choice {
   id              Int      @id @default(autoincrement())
   title           String
-  question        Question @relation(fields: [questionId], references: [id])
-  questionId      Int
+  correct         Boolean  // Whether this choice is the correct answer
+  question        Question? @relation(fields: [questionId], references: [id])
+  questionId      Int?
+  sectionQuestion SectionQuestion? @relation(fields: [sectionQuestionId], references: [id])
+  sectionQuestionId Int?
+}
+model Answer {
+  id             Int        @id @default(autoincrement())
+  user           User       @relation(fields: [userId], references: [id])
+  userId         Int
+  question       Question?  @relation(fields: [questionId], references: [id])
+  questionId     Int?
+  sectionQuestion SectionQuestion? @relation(fields: [sectionQuestionId], references: [id])
+  sectionQuestionId Int?
+  quizAttempt    QuizAttempt @relation(fields: [quizAttemptId], references: [id])
+  quizAttemptId  Int
+  answer         String     // This can store the student's answer, regardless of type
+  isCorrect      Boolean?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
 }
 
 model QuizAttempt {
@@ -206,19 +242,6 @@ model QuizAttempt {
   updatedAt       DateTime @updatedAt
   attemptCount    Int      @default(0) // Number of times the user attempted the quiz
   duration        Int?     // Total duration taken by the user to complete the quiz in minutes
-}
-model Answer {
-  id             Int        @id @default(autoincrement())
-  user           User       @relation(fields: [userId], references: [id])
-  userId         Int
-  question       Question   @relation(fields: [questionId], references: [id])
-  questionId     Int
-  quizAttempt    QuizAttempt @relation(fields: [quizAttemptId], references: [id])
-  quizAttemptId  Int
-  answer         String     // This can store the student's answer, regardless of type
-  isCorrect        Boolean?
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
 }
 model LessonPurchase {
   id              Int      @id @default(autoincrement())
