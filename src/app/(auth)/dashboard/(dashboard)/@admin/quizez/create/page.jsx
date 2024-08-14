@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 import {
     Button,
     Grid,
@@ -14,8 +14,8 @@ import {
     Modal,
     Box, Card, CardContent,
 } from "@mui/material";
-import { useToastContext } from "@/providers/ToastLoadingProvider";
-import FilterSelect from "@/app/UiComponents/FilterSelect";
+import {useToastContext} from "@/providers/ToastLoadingProvider";
+import FilterSelect from "@/app/UiComponents/filters/FilterSelect";
 import QuestionEditor from "@/app/UiComponents/FormComponents/Forms/QuestionEditor";
 import {simpleModalStyle} from "@/app/constants";
 import {handleRequestSubmit} from "@/helpers/functions/handleSubmit";
@@ -33,7 +33,7 @@ const CreateQuizPage = () => {
     const [loadingCourses, setLoadingCourses] = useState(true);
     const [loadingCategories, setLoadingCategories] = useState(true);
     const [errors, setErrors] = useState({});
-    const { setLoading } = useToastContext();
+    const {setLoading} = useToastContext();
     const [currentQuestion, setCurrentQuestion] = useState(null);  // New state for the current question in the modal
     const [isModalOpen, setIsModalOpen] = useState(false);  // State to control the modal
 
@@ -42,14 +42,14 @@ const CreateQuizPage = () => {
         const response = await fetch(`/api/indexes?index=course&filters={"categoryId":${filteredCat}}`);
         const result = await response.json();
         setLoadingCourses(false);
-        return { data: result.data };
+        return {data: result.data};
     };
 
     const fetchAllCategories = async () => {
         const response = await fetch(`/api/indexes?index=category`);
         const result = await response.json();
         setLoadingCategories(false);
-        return { data: result.data };
+        return {data: result.data};
     };
 
     useEffect(() => {
@@ -57,6 +57,7 @@ const CreateQuizPage = () => {
             const responseCourses = await fetchAllCoursesByCatId();
             setCourses(responseCourses.data);
         }
+
         fetchCoursesByCatId();
     }, [filteredCat]);
 
@@ -65,6 +66,7 @@ const CreateQuizPage = () => {
             const responseCategories = await fetchAllCategories();
             setCategories(responseCategories.data);
         }
+
         fetchFilterData();
     }, []);
 
@@ -73,19 +75,19 @@ const CreateQuizPage = () => {
         setAssociationType(type);
         setCourseId("");
         setCategoryId("");
-        setErrors(prev => ({ ...prev, courseId: false, categoryId: false }));
+        setErrors(prev => ({...prev, courseId: false, categoryId: false}));
     };
 
     const handleCourseChange = (event) => {
         const id = event.target.value;
         setCourseId(id);
-        setErrors(prev => ({ ...prev, courseId: !id }));
+        setErrors(prev => ({...prev, courseId: !id}));
     };
 
     const handleCategoryChange = (event) => {
         const id = event.target.value;
         setCategoryId(id);
-        setErrors(prev => ({ ...prev, categoryId: !id }));
+        setErrors(prev => ({...prev, categoryId: !id}));
     };
 
     const handleCatChange = (event) => {
@@ -94,7 +96,13 @@ const CreateQuizPage = () => {
     };
 
     const handleAddQuestion = () => {
-        setCurrentQuestion({ title: "", questionType: "TEXT", questionChoices: [], correctChoice: null, order: questions.length + 1 });
+        setCurrentQuestion({
+            title: "",
+            questionType: "TEXT",
+            questionChoices: [],
+            correctChoice: null,
+            order: questions.length + 1
+        });
         setIsModalOpen(true);
     };
 
@@ -112,7 +120,7 @@ const CreateQuizPage = () => {
     };
 
     const handleEditQuestion = (index) => {
-        setCurrentQuestion({ ...questions[index], index });
+        setCurrentQuestion({...questions[index], index});
         setIsModalOpen(true);
     };
 
@@ -184,7 +192,7 @@ const CreateQuizPage = () => {
                                     <div className={"flex gap-2  flex-row-reverse"}>
                                         <FilterSelect
                                               label="الوحدة"
-                                              options={courses?.map(course => ({ name: course.title, id: course.id }))}
+                                              options={courses?.map(course => ({name: course.title, id: course.id}))}
                                               value={courseId}
                                               onChange={handleCourseChange}
                                               loading={loadingCourses}
@@ -206,7 +214,8 @@ const CreateQuizPage = () => {
                                           loading={loadingCategories}
                                     />
                               )}
-                              {(errors.courseId || errors.categoryId) && <FormHelperText>{errors.courseId || errors.categoryId}</FormHelperText>}
+                              {(errors.courseId || errors.categoryId) &&
+                                    <FormHelperText>{errors.courseId || errors.categoryId}</FormHelperText>}
                           </FormControl>
                       </Grid>
 
@@ -217,7 +226,7 @@ const CreateQuizPage = () => {
                                 value={title}
                                 onChange={(e) => {
                                     setTitle(e.target.value);
-                                    setErrors(prev => ({ ...prev, title: !e.target.value }));
+                                    setErrors(prev => ({...prev, title: !e.target.value}));
                                 }}
                                 error={!!errors.title}
                                 helperText={errors.title}
@@ -233,7 +242,7 @@ const CreateQuizPage = () => {
                                 value={description}
                                 onChange={(e) => {
                                     setDescription(e.target.value);
-                                    setErrors(prev => ({ ...prev, description: !e.target.value }));
+                                    setErrors(prev => ({...prev, description: !e.target.value}));
                                 }}
                                 error={!!errors.description}
                                 helperText={errors.description}
@@ -248,10 +257,12 @@ const CreateQuizPage = () => {
                                     <Card variant="outlined" className="mb-2">
                                         <CardContent>
                                             <Typography variant="h6">{question.title}</Typography>
-                                            <Button variant="contained" color="primary" onClick={() => handleEditQuestion(qIndex)}>
+                                            <Button variant="contained" color="primary"
+                                                    onClick={() => handleEditQuestion(qIndex)}>
                                                 تعديل
                                             </Button>
-                                            <Button variant="contained" color="error" onClick={() => handleDeleteQuestion(qIndex)}>
+                                            <Button variant="contained" color="error"
+                                                    onClick={() => handleDeleteQuestion(qIndex)}>
                                                 حذف
                                             </Button>
                                         </CardContent>

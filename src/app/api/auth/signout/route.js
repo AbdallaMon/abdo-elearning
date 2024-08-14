@@ -13,14 +13,14 @@ export async function POST() {
 
     return Response.json({
       status: 200,
-      message: "Signed out successfully",
+      message: "تم تسجيل الخروج بنجاح",
       auth: false,
     });
   } catch (error) {
     console.log(error);
     return Response.json({
       status: 500,
-      message: "Error signing out user " + error.message,
+      message: "حدث خطاء اثناء تسجيل الخروج "
     });
   }
 }

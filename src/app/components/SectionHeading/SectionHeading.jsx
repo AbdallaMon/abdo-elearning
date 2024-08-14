@@ -1,26 +1,40 @@
-import { Typography } from "@mui/material";
+import {Typography, Box} from "@mui/material";
 
-export default function SectionHeading({ title, subTitle, center = true }) {
-  return (
-    <div
-      className={
-        (center ? " items-center " : "") + "  flex flex-col  mb-8 gap-2"
-      }
-    >
-      <Typography
-        variant={"h5"}
-        className={" font-bole text-[--body_color] mb-[-5px] "}
-        sx={{ textTransform: "uppercase" }}
-      >
-        {subTitle}
-      </Typography>
-      <Typography
-        variant={"h3"}
-        className={"max-md:text-3xl font-bold text-[--heading_color]"}
-      >
-        {title}
-      </Typography>
-      <div className={"w-20 h-1 bg-[--color_primary]"} />
-    </div>
-  );
+export default function SectionHeading({title, subTitle, center = true}) {
+    return (
+          <Box
+                className={
+                      (center ? "text-center" : "") + " flex flex-col items-center mb-16"
+                }
+          >
+              <Typography
+                    variant="h6"
+                    color="secondary"
+                    sx={{
+                        textTransform: "uppercase",
+                        fontWeight: "bold",
+                        letterSpacing: "0.1em",
+                        mb: -1,
+                        borderBottom: "3px solid",
+                        borderColor: "secondary.main",
+                        display: "inline-block",
+                        paddingBottom: "0.5rem",
+                    }}
+              >
+                  {subTitle}
+              </Typography>
+              <Typography
+                    variant="h3"
+                    className="font-bold text-heading relative"
+                    sx={{
+                        position: "relative",
+                        fontSize: {xs: "2rem", md: "3rem"},
+                        fontWeight: "bold",
+                    }}
+              >
+                  {title}
+
+              </Typography>
+          </Box>
+    );
 }

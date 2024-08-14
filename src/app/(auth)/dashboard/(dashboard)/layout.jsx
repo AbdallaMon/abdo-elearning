@@ -16,17 +16,17 @@ export default function Layout({ children, admin, student }) {
 
   useEffect(() => {
     async function fetchData() {
-      const toastId = toast.loading("Checking your authentication...");
+      const toastId = toast.loading("جاري التاكد من صلاحيتك");
       const response = await fetch(`/api/auth/state`, { cache: "no-store" });
       const result = await response.json();
       if (result.auth === false) {
         router.push("/login");
-        toast.update(toastId, Failed("Not Authenticated. Redirecting..."));
+        toast.update(toastId, Failed("انتهت الجلسة يجب عليك اعادة تسجيل الدخول"));
       }
       if (result.auth === true) {
         toast.update(
           toastId,
-          Success("Authenticated. Loading data please wait..."),
+          Success("تم التاكد من الصلاحيات بامكانك وجاري تحميل البيانات"),
         );
       }
       setRes(result);

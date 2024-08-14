@@ -2,26 +2,36 @@ import prisma from "@/lib/pirsma/prisma";
 
 // Fetch courses with pagination
 export async function fetchCategories() {
-    const categories=await prisma.category.findMany();
+    const categories = await prisma.category.findMany();
     return categories;
 }
+
 export async function fetchCourses(page = 0, limit = 10, categoryId = null) {
-    const where = categoryId ? { categoryId: parseInt(categoryId, 10) } : {};
-    const courses = await prisma.course.findMany({
-        where,
-        skip: (page-1 )* limit,
-        take: limit,
-        include: {
-            category: true,
-        },
-    });
-    const total = await prisma.course.count(
-        { where}
-    );
-    return {
-        data: courses,
-        total,
-    };
+    try {
+
+        const where = categoryId ? {categoryId: parseInt(categoryId, 10)} : {};
+        const courses = await prisma.course.findMany({
+            where,
+            skip: (page - 1) * limit,
+            take: limit,
+            include: {
+                category: true,
+            },
+        });
+        const total = await prisma.course.count(
+              {where}
+        );
+        return {
+            data: courses,
+            total,
+            status: 200
+        };
+    } catch (e) {
+        return {
+            message: "something wrong happened",
+            status: 400
+        };
+    }
 }
 
 // Create a new course
@@ -36,8 +46,10 @@ export async function createCourse(data) {
         return {
             message: "Course created successfully",
             data: newCourse,
+            status: 200
         };
     } catch (error) {
+        console.log(error, "error")
         return {
             message: "Failed to create course",
             status: 500,
@@ -49,7 +61,7 @@ export async function createCourse(data) {
 export async function editCourse(id, data) {
     try {
         const updatedCourse = await prisma.course.update({
-            where: { id: parseInt(id, 10) },
+            where: {id: parseInt(id, 10)},
             data,
             include: {
                 category: true,
@@ -58,6 +70,7 @@ export async function editCourse(id, data) {
         return {
             message: "Course edited successfully",
             data: updatedCourse,
+            status: 200
         };
     } catch (error) {
         return {
@@ -91,16 +104,18 @@ export async function purchaseLesson(userId, lessonId) {
 }
 
 // Get lessons related to a category
-export async function fetchLessonsByCourseId( courseId, page = 0, limit = 10) {
+export async function fetchLessonsByCourseId(courseId, page = 0, limit = 10) {
     const where = {};
     if (courseId) where.courseId = parseInt(courseId, 10);
 
     const lessons = await prisma.lesson.findMany({
         where,
-        skip: (page-1) * limit,
-        take: limit,
+        skip: (page - 1) * limit,
+        take: limit, orderBy: {
+            order: 'asc'
+        }
     });
-    const total = await prisma.lesson.count({ where });
+    const total = await prisma.lesson.count({where});
 
     return {
         data: lessons,
@@ -137,7 +152,7 @@ export async function updateLessonPurchaseStatus(userId, lessonId, status) {
 
 // create a new lesson
 export async function createLesson(data) {
-    data.order=parseInt(data.order,10);
+    data.order = parseInt(data.order, 10);
     try {
         const newLesson = await prisma.lesson.create({
             data,
@@ -145,54 +160,62 @@ export async function createLesson(data) {
         return {
             message: "تم إنشاء الدرس بنجاح",
             data: newLesson,
+            status: 200
         };
     } catch (error) {
         console.log(error);
-  throw new Error("فشل في إنشاء الدرس");
+        return {
+            message: "فشل انشاء الدرس",
+            status: 400
+        };
     }
 }
+
 export async function editLesson(id, data) {
-    if(data.order){
-        data.order=parseInt(data.order,10);
+    if (data.order) {
+        data.order = parseInt(data.order, 10);
     }
     try {
         const updatedLesson = await prisma.lesson.update({
-            where: { id: parseInt(id, 10) },
+            where: {id: parseInt(id, 10)},
             data,
         });
         return {
-            message: "Lesson edited successfully",
+            message: "تم تعديل الدرس بنجاح",
             data: updatedLesson,
+            status: 200
         };
     } catch (error) {
         return {
-            message: "Failed to edit lesson",
+            message: "فشل تعديل الدرس",
             status: 500,
         };
     }
 }
-export async function getIndexedData(index,filters){
+
+export async function getIndexedData(index, filters) {
     const model = prisma[index];
 
-    const where=filters?filters:{};
-    const select={
+    const where = filters ? filters : {};
+    const select = {
         id: true,
     }
-if(index==="category"){
-    select.name=true
-}else{
-    select.title=true
-}
+    if (index === "category") {
+        select.name = true
+    } else {
+        select.title = true
+    }
     const data = await model.findMany({
         where,
         select,
     });
     return {data};
 }
+
 export async function createMediaForLesson(lessonId, mediaData) {
-    mediaData.order=parseInt(mediaData.order,10);
-    mediaData.isFree=mediaData.isFree?true:false;
-    mediaData.expectedDuration=parseInt(mediaData.expectedDuration,10);
+    mediaData.order = parseInt(mediaData.order, 10);
+    mediaData.isFree = mediaData.isFree ? true : false;
+    mediaData.expectedDuration = parseInt(mediaData.expectedDuration, 10);
     delete mediaData.media;
 
     try {
@@ -205,72 +228,73 @@ export async function createMediaForLesson(lessonId, mediaData) {
         return {
             message: "Media created successfully",
             data: newMedia,
-            status:200
+            status: 200
         }
     } catch (error) {
         console.error("Error creating media for lesson:", error);
         throw error;
     }
 }
-export async function fetchAllMediaByLessonId(lessonId){
+
+export async function fetchAllMediaByLessonId(lessonId) {
     try {
         const media = await prisma.media.findMany({
-           where:{
-               lessonId
-           },
+            where: {
+                lessonId
+            },
             orderBy: {
                 order: 'asc'
             }
         });
         return {
             data: media,
-            status:200
+            status: 200
         }
     } catch (error) {
         console.error("Error fetching media for lesson:", error);
         throw error;
     }
 }
-export async function updateMedia(mediaId,data){
-    if(data.order){
-        data.order=+data.order
+
+export async function updateMedia(mediaId, data) {
+    if (data.order) {
+        data.order = +data.order
     }
-    if(data.expectedDuration){
-        data.expectedDuration=+data.expectedDuration
+    if (data.expectedDuration) {
+        data.expectedDuration = +data.expectedDuration
     }
     try {
-        const media=await prisma.media.update({
-            where:{
-                id:+mediaId
-            },data
+        const media = await prisma.media.update({
+            where: {
+                id: +mediaId
+            }, data
         })
         return {
             data: media,
-            status:200
+            status: 200
         }
     } catch (error) {
         console.error("Error updating media :", error);
         throw error;
     }
 }
-export async function deleteMedia(mediaId){
+
+export async function deleteMedia(mediaId) {
     try {
-        const deletedMedia=await prisma.media.delete({
-            where:{
-                id:+mediaId
+        const deletedMedia = await prisma.media.delete({
+            where: {
+                id: +mediaId
             }
         })
         return {
             data: deletedMedia,
-            status:200
+            status: 200
         }
     } catch (error) {
         console.error("Error deleting media :", error);
         throw error;
     }
 }
-
-
 
 
 ///quizez
@@ -284,7 +308,7 @@ export async function fetchQuizzes(page = 1, limit = 10, filters = {}) {
     }
     if (filters.categoryId) {
         whereClause.OR = [
-            { categoryId: +filters.categoryId }, // Quizzes directly related to the category
+            {categoryId: +filters.categoryId}, // Quizzes directly related to the category
             {
                 course: {
                     categoryId: +filters.categoryId, // Quizzes related to courses under the category
@@ -305,11 +329,11 @@ export async function fetchQuizzes(page = 1, limit = 10, filters = {}) {
                 course: {
                     select: {
                         title: true,
-                        id:true,
-                        category:{
-                            select:{
-                                id:true,
-                                name:true
+                        id: true,
+                        category: {
+                            select: {
+                                id: true,
+                                name: true
                             }
                         }
                     },
@@ -321,7 +345,7 @@ export async function fetchQuizzes(page = 1, limit = 10, filters = {}) {
         });
 
         return {
-            data:  quizzes,
+            data: quizzes,
             total,
             status: 200,
         };
@@ -333,15 +357,16 @@ export async function fetchQuizzes(page = 1, limit = 10, filters = {}) {
         };
     }
 }
+
 export async function createQuiz(data) {
-    const { title, description, courseId, categoryId, questions } = data;
+    const {title, description, courseId, categoryId, questions} = data;
     try {
         const quiz = await prisma.quiz.create({
             data: {
                 title,
                 description,
-                course: courseId ? { connect: { id: courseId } } : undefined,
-                category: categoryId ? { connect: { id: categoryId } } : undefined,
+                course: courseId ? {connect: {id: courseId}} : undefined,
+                category: categoryId ? {connect: {id: categoryId}} : undefined,
                 questions: {
                     create: questions.map((q) => ({
                         title: q.title,
@@ -388,11 +413,12 @@ export async function createQuiz(data) {
         };
     }
 }
+
 // Fetch a quiz by its ID, including all related data
 export async function fetchQuizById(quizId) {
     try {
         const quiz = await prisma.quiz.findUnique({
-            where: { id: quizId },
+            where: {id: quizId},
             include: {
                 course: {
                     select: {
@@ -431,6 +457,7 @@ export async function fetchQuizById(quizId) {
         };
     }
 }
+
 export async function updateAQuestion(data, questionId, quizId) {
     try {
         // Start with updating the main question data
@@ -445,7 +472,7 @@ export async function updateAQuestion(data, questionId, quizId) {
 
         // Update the main question data
         await prisma.question.update({
-            where: { id: parseInt(questionId) },
+            where: {id: parseInt(questionId)},
             data: updateData,
         });
 
@@ -455,8 +482,8 @@ export async function updateAQuestion(data, questionId, quizId) {
                 if (choice.id) {
                     // Update existing choice
                     await prisma.choice.update({
-                        where: { id: choice.id },
-                        data: { title: choice.title, correct: choice.correct },
+                        where: {id: choice.id},
+                        data: {title: choice.title, correct: choice.correct},
                     });
                 } else {
                     // Create new choice if no ID is provided
@@ -477,8 +504,8 @@ export async function updateAQuestion(data, questionId, quizId) {
                 if (sectionQuestion.id) {
                     // Update existing section question
                     await prisma.sectionQuestion.update({
-                        where: { id: sectionQuestion.id },
-                        data: { title: sectionQuestion.title, order: sectionQuestion.order },
+                        where: {id: sectionQuestion.id},
+                        data: {title: sectionQuestion.title, order: sectionQuestion.order},
                     });
 
                     // Update the choices within the section question
@@ -486,8 +513,8 @@ export async function updateAQuestion(data, questionId, quizId) {
                         if (choice.id) {
                             // Update existing choice
                             await prisma.choice.update({
-                                where: { id: choice.id },
-                                data: { title: choice.title, correct: choice.correct },
+                                where: {id: choice.id},
+                                data: {title: choice.title, correct: choice.correct},
                             });
                         } else {
                             // Create new choice if no ID is provided
@@ -535,18 +562,28 @@ export async function updateAQuestion(data, questionId, quizId) {
         };
     }
 }
+
 export async function createQuizQuestion(quizId, questionData) {
-    const { title, questionType, questionText,description, order, questionChoices, sectionQuestions, correctAnswerBoolean } = questionData;
+    const {
+        title,
+        questionType,
+        questionText,
+        description,
+        order,
+        questionChoices,
+        sectionQuestions,
+        correctAnswerBoolean
+    } = questionData;
 
     try {
         const updatedQuiz = await prisma.quiz.update({
-            where: { id: quizId },
+            where: {id: quizId},
             data: {
                 questions: {
                     create: {
                         title,
                         questionType,
-                        description:description,
+                        description: description,
                         questionText,
                         order,
                         correctAnswerBoolean: questionType === 'TRUE_FALSE' ? correctAnswerBoolean : null,
@@ -602,18 +639,16 @@ export async function createQuizQuestion(quizId, questionData) {
 }
 
 
-
-export async function deleteQuestion(questionId){
+export async function deleteQuestion(questionId) {
     try {
         await prisma.question.delete({
-            where: { id: parseInt(questionId) },
+            where: {id: parseInt(questionId)},
         });
         return {
             status: 200,
-            message:"deleted successfully"
+            message: "deleted successfully"
         }
-    }
-    catch (error) {
+    } catch (error) {
         console.error("Error updateing quiz:", error);
         return {
             message: "Failed to delete quiz",

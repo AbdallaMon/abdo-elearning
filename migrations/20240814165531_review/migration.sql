@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `course` ADD COLUMN `type` ENUM('COURSE', 'REVIEW') NOT NULL DEFAULT 'COURSE';

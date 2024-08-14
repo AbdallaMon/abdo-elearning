@@ -94,7 +94,7 @@ export const signupInputs = [
       label: "تأكيد كلمة المرور",
       name: "confirmPassword",
     },
-    sx:{      mt:"10px"
+    sx:{      my:"10px"
     },
     pattern: {
       required: {

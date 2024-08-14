@@ -1,20 +1,12 @@
 {
   "navList": [
     {
-      "name": "home",
+      "name": " الرئيسية",
       "href": "/"
     },
     {
-      "name": "courses",
-      "href": "/courses"
-    },
-    {
-      "name": "instructors",
-      "href": "/instructors/"
-    },
-    {
-      "name": "blog",
-      "href": "/blog"
+      "name": "المحاضرات",
+      "href": "/lessons"
     }
   ]
 }

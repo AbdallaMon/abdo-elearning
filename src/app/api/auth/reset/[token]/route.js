@@ -14,7 +14,7 @@ export async function POST(request, { params }) {
     if (!user || Date.now() > user.resetPasswordExpires) {
       return Response.json({
         status: 500,
-        message: "Invalid or expired reset token",
+        message: "انتهت صلاحية الرابط",
       });
     }
 
@@ -33,13 +33,13 @@ export async function POST(request, { params }) {
 
     return Response.json({
       status: 200,
-      message: "Password has been reset please login",
+      message: "تم اعادة تعين كلمة المرور يمكنك تسجيل الدخول الان",
     });
   } catch (error) {
     console.log(error);
     return Response.json({
       status: 500,
-      message: "Error resetting password " + error.message,
+      message: "حدثت مشكلة اثناء اعادة تعين كلمة المرور " + error.message,
     });
   }
 }

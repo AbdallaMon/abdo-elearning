@@ -12,7 +12,10 @@ enum Role {
   ADMIN
 }
 
-
+enum CourseType {
+  COURSE
+  REVIEW
+}
 
 enum QuestionType {
   TEXT
@@ -75,10 +78,11 @@ model Category {
 
 model Course {
   id              Int      @id @default(autoincrement())
-  title           String   @unique
+  title           String
   description     String
   category        Category @relation(fields: [categoryId], references: [id])
   categoryId      Int
+  type            CourseType @default(COURSE)  // Add the type field
   lessons         Lesson[]
   quizzes         Quiz[]
   createdAt       DateTime @default(now())
@@ -97,7 +101,7 @@ model Course {
 
 model Lesson {
   id              Int      @id @default(autoincrement())
-  title           String   @unique
+  title           String
   description     String
   course          Course   @relation(fields: [courseId], references: [id])
   courseId        Int
@@ -108,6 +112,7 @@ model Lesson {
   updatedAt       DateTime @updatedAt
   deletedAt       DateTime?
   purchases       LessonPurchase[]
+  price       Float @default(0)
   published       Boolean  @default(false)
   order           Int
 
@@ -249,6 +254,7 @@ model LessonPurchase {
   userId          Int
   lesson          Lesson   @relation(fields: [lessonId], references: [id])
   lessonId        Int
+  status  PurchaseStatus @default(PENDING)  // Add status field
   purchasedAt     DateTime @default(now())
 }
 
@@ -281,8 +287,6 @@ model StudentCourse {
   courseId Int
   user    User   @relation(fields: [userId], references: [id])
   course  Course @relation(fields: [courseId], references: [id])
-    status  PurchaseStatus @default(PENDING)  // Add status field
-
   @@id([userId, courseId])
 }
 

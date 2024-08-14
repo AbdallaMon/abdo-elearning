@@ -1,7 +1,5 @@
 import nodemailer from "nodemailer";
 
-export async function sendEmail(to, subject, text) {
-  // Create a transporter
   let transporter = nodemailer.createTransport({
     service: "gmail", // Use Gmail as the email service
     auth: {
@@ -9,17 +7,20 @@ export async function sendEmail(to, subject, text) {
       pass: process.env.EMAIL_PASSWORD, // Your Gmail password
     },
   });
+export const sendEmail = async (to, subject, html) => {
+  // Create a transporter
 
   // Set up email data with unicode symbols
   let mailOptions = {
-    from: process.env.EMAIL_USERNAME, // Sender address
-    to: to, // List of receivers
-    subject: subject, // Subject line
-    text: text, // Plain text body
+    from: `"Mr Abdelrahman" <${process.env.EMAIL_USERNAME}>`,
+    to,
+    subject,
+    html,
   };
 
-  // Send the email
-  let info = await transporter.sendMail(mailOptions);
-
-  console.log("Message sent: %s", info.messageId);
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error(`Error sending email to ${to}:`, error);
+  }
 }

@@ -10,7 +10,7 @@ export async function POST(request, { params }) {
   const cookieStore = cookies();
   if (!confirmationToken)
     return Response.json({
-      message: "No confirmation token provided",
+      message: "هذا الرابط غير صالح",
       status: 500,
     });
   try {
@@ -22,13 +22,13 @@ export async function POST(request, { params }) {
 
     if (!user || Date.now() > user.confirmationExpires) {
       return Response.json({
-        message: "Invalid or expired confirmation token",
+        message: "انتهت صلاحية هذا الرابط",
         status: 500,
       });
     }
     if (user.emailConfirmed) {
       return Response.json({
-        message: "Email has already been confirmed",
+        message: "هذا البريط مفعل من قبل",
         status: 400,
       });
     }
@@ -37,28 +37,32 @@ export async function POST(request, { params }) {
         confirmationToken: confirmationToken,
       },
       data: {
-        confirmationToken: null, // Clear the confirmation token
-        confirmationExpires: null, // Clear the token expiry time
+        confirmationToken: null,
+        confirmationExpires: null,
         emailConfirmed: true,
       },
     });
-    const jwtToken = jwt.sign({ userId: user.id }, SECRET_KEY);
+    const token = jwt.sign({ id: user.id,            role: user.role,emailConfirmed:user.emailConfirmed
+    }, SECRET_KEY, {
+      expiresIn: '8h',
+    });
+
     await cookieStore.set({
       name: "token",
-      value: jwtToken,
+      value: token,
       httpOnly: true,
       secure: true,
       path: "/",
     });
 
     return Response.json({
-      message: "Email confirmed redirecting...",
+      message: "تم تفعيل الحساب جاري تحويلك  ",
       user,
       redirect: true,
       status: 200,
     });
   } catch (error) {
     console.error(error);
-    return Response.json({ message: "An error occurred" });
+    return Response.json({ message: "حدثت مشكلة ما" });
   }
 }

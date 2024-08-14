@@ -14,12 +14,18 @@ export async function POST(request) {
       where: {
         email: body.email,
       },
+      select:{
+        id:true,
+        role:true,
+        emailConfirmed:true,
+        password:true,
+      }
     });
 
     if (!user) {
       return Response.json({
         status: 500,
-        message: "No user found with this email",
+        message: "لا يوجد حساب بهذا البريد",
       });
     }
 
@@ -28,11 +34,14 @@ export async function POST(request) {
     if (!validPassword) {
       return Response.json({
         status: 500,
-        message: "Incorrect password",
+        message: "كلمة المرور غير صحيحة",
       });
     }
 
-    const token = jwt.sign({ userId: user.id }, SECRET_KEY);
+    const token = jwt.sign({ id: user.id,            role: user.role,emailConfirmed:user.emailConfirmed
+    }, SECRET_KEY, {
+      expiresIn: '8h',
+    });
 
     cookieStore.set({
       name: "token",
@@ -44,13 +53,14 @@ export async function POST(request) {
 
     return Response.json({
       status: 200,
-      message: "User signed in successfully redirecting...",
+      message: "تم تسجيل الدخول بنجاح وجاري اعادة التوجية...",
       user,
     });
   } catch (error) {
+    console.log(error,"error")
     return Response.json({
       status: 500,
-      message: "Error signing in user " + error.message,
+      message: "حدث خطاءاثناء تسجيل الدخول" ,
     });
   }
 }
