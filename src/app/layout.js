@@ -6,6 +6,7 @@ import AuthProvider from "@/providers/AuthProvider";
 import ToastProvider from "@/providers/ToastLoadingProvider";
 import {Rtl} from "@/providers/Rtl";
 import ReduxProvider from "@/providers/ReduxProvider";
+import DotsLoader from "@/app/components/feedback/DotsLoader";
 
 const inter = Cairo({subsets: ["latin"]});
 
@@ -23,6 +24,8 @@ export default function RootLayout({children}) {
               <ReduxProvider>
                   <ToastProvider>
                       <AuthProvider>
+                          <DotsLoader/>
+
                           <Navbar/>
                           {children}
                       </AuthProvider>

@@ -93,9 +93,17 @@ export default function BuyButton({item, catId}) {
                                 )}
                             </>
                       ) : (
-                            <DialogContentText>
-                                يجب أن تكون مسجل الدخول لإجراء عملية الشراء.
-                            </DialogContentText>
+                            <>
+                                <DialogContentText>
+                                    يجب أن تكون مسجل الدخول لإجراء عملية الشراء.
+                                </DialogContentText>
+                                <Link href="/login" color="primary"
+                                      variant="body2">
+                                    <Button color="primary" sx={{mt: 2}}>
+                                        تسجيل الدخول؟ </Button>
+                                </Link>
+                            </>
+
                       )}
                   </DialogContent>
                   {isLoggedIn && !cardMessage && (

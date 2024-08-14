@@ -1,24 +1,25 @@
 import LessonsComponent from "@/app/UiComponents/dataView/Lessons";
 import React, {Suspense} from "react";
-import {Box, Grid, Typography} from "@mui/material";
-import {colors, stages} from "@/app/constants";
+import {Typography} from "@mui/material";
+import {stages} from "@/app/constants";
 import LessonCardSkeleton from "@/app/UiComponents/loader/LessonSkeleton";
-import Link from "next/link";
 import FilterByCategoriesAsLinks from "@/app/UiComponents/filters/FilterByCategoriesLinks";
 
 export async function generateMetadata({params: {id}, searchParams: {courseId}}) {
+    const currentStage = stages.find((level) => level.id == id);
 
-    const currentStage = stages.find((level) => level.id == id)
-    const description = `Explore the lessons for ${currentStage.title}. Find detailed explanations and engaging content.`;
+    const title = `محاضرات اللغة الفرنسية ${currentStage.title} مع مسيو عبدالرحمن عبدالصبور`;
+    const description = `استعرض محاضرات ${currentStage.title} وتعرف على تفسيرات مفصلة ومحتوى تعليمي شيق مع مسيو عبدالرحمن عبدالصبور.`;
 
     return {
-        title: currentStage.title,
+        title,
         description,
         icons: {
             icon: currentStage.imageUrl
         },
     }
 }
+
 
 export default function LessonPage({params: {id}, searchParams: {courseId}}) {
 
